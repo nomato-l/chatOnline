@@ -100,8 +100,11 @@ int main(int argc, char *argv[])
         if (client_sock == INVALID_SOCKET)
             continue;
 
+        printf("new client connected: %llu\n", client_sock);
+
         SOCKET *pclient = malloc(sizeof(SOCKET));
-        if (!pclient) {
+        if (!pclient)
+        {
             printf("malloc failed\n");
             CLOSESOCKET(client_sock);
             continue;
@@ -110,13 +113,15 @@ int main(int argc, char *argv[])
 
 #ifdef _WIN32
         HANDLE hThread = CreateThread(NULL, 0, threadFunc, pclient, 0, NULL);
-        if (hThread) CloseHandle(hThread);
+        if (hThread)
+            CloseHandle(hThread);
 #else
         pthread_t tid;
         if (pthread_create(&tid, NULL, threadFunc, pclient) == 0)
             pthread_detach(tid);
 #endif
     }
+
     // 关闭监听socket
     CLOSESOCKET(listen_sock);
 #ifdef _WIN32
@@ -137,14 +142,14 @@ DWORD WINAPI threadFunc(LPVOID lpParam)
         int recv_len = recv(client_sock, buffer, 1024, 0);
         if (recv_len <= 0)
             break;
-        printf("%s\n", buffer);
+        printf("%llu:%s\n", client_sock, buffer);
         send(client_sock, buffer, strlen(buffer), 0);
     }
     CLOSESOCKET(client_sock);
     return 0;
 }
 #else
-void* threadFunc(void* arg)
+void *threadFunc(void *arg)
 {
     SOCKET client_sock = *(SOCKET *)arg;
     free(arg);
@@ -155,9 +160,11 @@ void* threadFunc(void* arg)
         int recv_len = recv(client_sock, buffer, 1024, 0);
         if (recv_len <= 0)
             break;
-        printf("%s\n", buffer);
+        printf("%llu:%s\n", client_sock, buffer);
         send(client_sock, buffer, strlen(buffer), 0);
     }
+    printf("socket: %llu server exit\n", client_sock);
+
     CLOSESOCKET(client_sock);
     return NULL;
 }
