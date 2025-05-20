@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.mk": "makefile",
+        "in.h": "c",
+        "types.h": "c",
+        "fcntl.h": "c"
+    }
+}
